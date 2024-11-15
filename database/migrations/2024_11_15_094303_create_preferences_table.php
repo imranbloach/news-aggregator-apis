@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('preferences', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('user_id')->constrained('users')->cascadeOnDelete();
+            $table->json('categories')->nullable();
+            $table->json('sources')->nullable();
             $table->timestamps();
         });
     }
