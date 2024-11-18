@@ -1,7 +1,9 @@
 <?php
+
 namespace App\Services;
 
 use App\Repositories\ArticleRepository;
+use Illuminate\Support\Facades\Cache;
 
 class ArticleService
 {
@@ -14,11 +16,16 @@ class ArticleService
 
     public function getAllArticles($filters)
     {
-        return $this->articleRepo->fetchArticlesWithFilters($filters);
+        return Cache::remember('articles', 3600, function () use ($filters) {
+            return $this->articleRepo->fetchArticlesWithFilters($filters);
+        });
     }
 
     public function getArticleById($id)
     {
-        return $this->articleRepo->findArticleById($id);
+        return Cache::remember("article_{$id}", 3600, function () use ($id) {
+            return $this->articleRepo->findArticleById($id);
+        });
     }
 }
+

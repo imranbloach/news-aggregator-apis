@@ -20,6 +20,7 @@ class PreferenceRepository
 
     public function getUserPreferences($user)
     {
-        return $user->preferences;
+        return $user->preferences ?? [];
     }
+
 }

@@ -14,10 +14,17 @@ return new class extends Migration
         Schema::create('articles', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->text('content');
-            $table->unsignedBigInteger('author_id')->constrained('authors')->cascadeOnDelete();
-            $table->unsignedBigInteger('category_id')->constrained('categories')->cascadeOnDelete();
-            $table->unsignedBigInteger('source_id')->constrained('sources')->cascadeOnDelete();
+            $table->text('content')->nullable();
+            $table->string('url')->unique()->nullable(); // Unique to avoid duplicates
+            $table->string('source_name')->nullable(); // e.g., "NewsAPI", "The Guardian", "New York Times"
+            $table->string('section_name')->nullable(); // e.g., "Sports", "Politics"
+            $table->dateTime('published_at')->nullable();
+
+            // Optional relationships
+            $table->unsignedBigInteger('author_id')->nullable()->constrained('authors')->cascadeOnDelete();
+            $table->unsignedBigInteger('category_id')->nullable()->constrained('categories')->cascadeOnDelete();
+            $table->unsignedBigInteger('source_id')->nullable()->constrained('sources')->cascadeOnDelete();
+
             $table->timestamps();
         });
     }

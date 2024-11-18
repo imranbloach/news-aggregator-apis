@@ -21,7 +21,7 @@ class PreferenceSeeder extends Seeder
                 'user_id' => $user->id,
                 'categories' => json_encode([1, 2]), // Use category IDs as preferred categories
                 'sources' => json_encode([1, 3]), // Use source IDs as preferred sources
-                //'authors' => json_encode([1, 5]), // Use author IDs as preferred authors
+                'authors' => json_encode([1, 5]), // Use author IDs as preferred authors
             ]);
         }
     }

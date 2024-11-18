@@ -4,6 +4,9 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Services\AuthService;
+use App\Http\Resources\AuthResource;
+use App\Http\Requests\RegisterRequest;
+use App\Http\Requests\LoginRequest;
 use Illuminate\Http\Request;
 
 class AuthController extends Controller
@@ -26,8 +29,8 @@ class AuthController extends Controller
      *         required=true,
      *         @OA\JsonContent(
      *             @OA\Property(property="name", type="string", example="John Doe"),
-     *             @OA\Property(property="email", type="string", example="john@gmail.com"),
-     *             @OA\Property(property="password", type="string", example="password123")
+     *             @OA\Property(property="email", type="string", example="imran@gmail.com"),
+     *             @OA\Property(property="password", type="string", example="Test@123")
      *         ),
      *     ),
      *     @OA\Response(
@@ -66,11 +69,13 @@ class AuthController extends Controller
      *     )
      * )
      */
-    public function register(Request $request)
-    {
-        $data = $this->authService->register($request->all());
-        return response()->json($data, $data['status']);
-    }
+    
+     public function register(RegisterRequest $request)
+     {
+         $user = $this->authService->register($request->validated());
+         return new AuthResource($user);
+     }
+     
 
 
     /**
@@ -83,7 +88,7 @@ class AuthController extends Controller
      *         required=true,
      *         @OA\JsonContent(
      *             @OA\Property(property="email", type="string", example="imran@gmail.com"),
-     *             @OA\Property(property="password", type="string", example="12345678")
+     *             @OA\Property(property="password", type="string", example="Test@1234")
      *         ),
      *     ),
      *     @OA\Response(
@@ -121,13 +126,17 @@ class AuthController extends Controller
      *     )
      * )
      */
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
-        $data = $this->authService->login($request->all());
-        return response()->json($data, $data['status']);
+        $user = $this->authService->login($request->validated());
+
+        if (!$user) {
+            return response()->json(['message' => 'Invalid credentials'], 401);
+        }
+
+        return new AuthResource($user);
     }
-
-
+    
     /**
      * @OA\Post(
      *     path="/logout",

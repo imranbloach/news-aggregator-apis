@@ -16,6 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id')->constrained('users')->cascadeOnDelete();
             $table->json('categories')->nullable();
             $table->json('sources')->nullable();
+            $table->json('authors')->nullable();
             $table->timestamps();
         });
     }
