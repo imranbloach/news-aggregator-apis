@@ -18,22 +18,22 @@
                     "Articles"
                 ],
                 "summary": "Get list of articles",
-                "description": "Returns a list of articles with optional filters",
+                "description": "Returns a list of articles with optional filters based on category, source, and published date.",
                 "operationId": "cd57fc6221635a256785738324a05693",
                 "parameters": [
                     {
                         "name": "category",
                         "in": "query",
-                        "description": "Category ID to filter articles",
+                        "description": "Category to filter articles",
                         "required": false,
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     },
                     {
                         "name": "keyword",
                         "in": "query",
-                        "description": "Keyword to search in article titles",
+                        "description": "Keyword to search in article titles or content",
                         "required": false,
                         "schema": {
                             "type": "string"
@@ -42,10 +42,21 @@
                     {
                         "name": "source",
                         "in": "query",
-                        "description": "Source ID to filter articles",
+                        "description": "Source to filter articles",
                         "required": false,
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "published_at",
+                        "in": "query",
+                        "description": "Date to filter articles by publication date",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time",
+                            "example": "2024-10-19T20:00:17Z"
                         }
                     }
                 ],
@@ -426,234 +437,93 @@
                 ]
             }
         },
-        "/news/{query}": {
-            "get": {
+        "/forgot-password": {
+            "post": {
                 "tags": [
-                    "News"
+                    "Authentication"
                 ],
-                "summary": "Fetch combined news articles from multiple sources",
-                "description": "Retrieves articles related to a specific query from NewsAPI.org, The Guardian, and The New York Times.",
-                "operationId": "e0fe194259f97581652ec4e3ddd3b952",
-                "parameters": [
-                    {
-                        "name": "query",
-                        "in": "path",
-                        "description": "Search query for news articles",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "News articles retrieved successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "newsApi": {
-                                            "type": "array",
-                                            "items": {
-                                                "properties": {
-                                                    "title": {
-                                                        "type": "string"
-                                                    },
-                                                    "description": {
-                                                        "type": "string"
-                                                    },
-                                                    "url": {
-                                                        "type": "string"
-                                                    },
-                                                    "publishedAt": {
-                                                        "type": "string",
-                                                        "format": "date-time"
-                                                    }
-                                                },
-                                                "type": "object"
-                                            }
-                                        },
-                                        "guardian": {
-                                            "type": "array",
-                                            "items": {
-                                                "properties": {
-                                                    "webTitle": {
-                                                        "type": "string"
-                                                    },
-                                                    "webUrl": {
-                                                        "type": "string"
-                                                    },
-                                                    "sectionName": {
-                                                        "type": "string"
-                                                    },
-                                                    "webPublicationDate": {
-                                                        "type": "string",
-                                                        "format": "date-time"
-                                                    }
-                                                },
-                                                "type": "object"
-                                            }
-                                        },
-                                        "nyt": {
-                                            "type": "array",
-                                            "items": {
-                                                "properties": {
-                                                    "headline": {
-                                                        "properties": {
-                                                            "main": {
-                                                                "type": "string"
-                                                            }
-                                                        },
-                                                        "type": "object"
-                                                    },
-                                                    "abstract": {
-                                                        "type": "string"
-                                                    },
-                                                    "web_url": {
-                                                        "type": "string"
-                                                    },
-                                                    "pub_date": {
-                                                        "type": "string",
-                                                        "format": "date-time"
-                                                    }
-                                                },
-                                                "type": "object"
-                                            }
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Bad request due to invalid input"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthenticated",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Unauthenticated"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
+                "summary": "Request a password reset link",
+                "description": "Sends a password reset link to the user's email.",
+                "operationId": "b1e862f281778a1f48e6df561e8daa95",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "example": "imran@gmail.com"
+                                    }
+                                },
+                                "type": "object"
                             }
                         }
                     }
                 },
-                "security": [
-                    {
-                        "sanctum": []
+                "responses": {
+                    "200": {
+                        "description": "Password reset link sent successfully."
+                    },
+                    "500": {
+                        "description": "Failed to send password reset link."
                     }
-                ]
+                }
             }
         },
-        "/preferences": {
-            "get": {
+        "/reset-password": {
+            "post": {
                 "tags": [
-                    "Preferences"
+                    "Authentication"
                 ],
-                "summary": "Get user preferences",
-                "description": "Retrieves the stored preferences for categories, sources, and authors for the authenticated user.",
-                "operationId": "53224b2c519cbdc57c82b8303da73d29",
-                "responses": {
-                    "200": {
-                        "description": "Preferences retrieved successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "user_id": {
-                                            "type": "integer"
-                                        },
-                                        "categories": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "string"
-                                            }
-                                        },
-                                        "sources": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "string"
-                                            }
-                                        },
-                                        "authors": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "string"
-                                            }
-                                        }
+                "summary": "Reset user password",
+                "description": "Resets the user's password using the provided token.",
+                "operationId": "e741dabf187ce180514beb87a99f8d60",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "token": {
+                                        "type": "string"
                                     },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Bad request due to invalid input"
-                                        }
+                                    "email": {
+                                        "type": "string",
+                                        "example": "user@example.com"
                                     },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthenticated",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Unauthenticated"
-                                        }
+                                    "password": {
+                                        "type": "string",
+                                        "example": "newpassword123"
                                     },
-                                    "type": "object"
-                                }
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "example": "newpassword123"
+                                    }
+                                },
+                                "type": "object"
                             }
                         }
                     }
                 },
-                "security": [
-                    {
-                        "sanctum": []
+                "responses": {
+                    "200": {
+                        "description": "Password reset successfully."
+                    },
+                    "500": {
+                        "description": "Password reset failed."
                     }
-                ]
-            },
+                }
+            }
+        },
+        "/save-preferences": {
             "post": {
                 "tags": [
                     "Preferences"
                 ],
                 "summary": "Store or update user preferences",
                 "description": "Stores or updates the categories, sources, and authors preferences for a user.",
-                "operationId": "10be158b2ba8b0e22e8b30bad066c42f",
+                "operationId": "2e7e9c259a546eb3223958a6825d1a43",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -769,6 +639,156 @@
                     }
                 ]
             }
+        },
+        "/get-preferences": {
+            "get": {
+                "tags": [
+                    "Preferences"
+                ],
+                "summary": "Get user preferences",
+                "description": "Retrieves the stored preferences for categories, sources, and authors for the authenticated user.",
+                "operationId": "3c18592a8f4c7e7b80c62880edb8734c",
+                "responses": {
+                    "200": {
+                        "description": "Preferences retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "user_id": {
+                                            "type": "integer"
+                                        },
+                                        "categories": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "sources": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "authors": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Bad request due to invalid input"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Preferences not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "No preferences found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/preferences/news": {
+            "get": {
+                "tags": [
+                    "Preferences"
+                ],
+                "summary": "Get personalized news based on user preferences",
+                "description": "Fetch a personalized news feed based on the user's preferred categories, sources, and authors.",
+                "operationId": "72869f315c7c9e93d1f9a9410227e73d",
+                "responses": {
+                    "200": {
+                        "description": "Personalized news feed retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Article"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "404": {
+                        "description": "No preferences found for user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "No personalized news found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -789,25 +809,45 @@
                         "description": "The content of the article",
                         "type": "string"
                     },
+                    "url": {
+                        "description": "The URL of the article",
+                        "type": "string"
+                    },
+                    "source": {
+                        "description": "The source name of the article",
+                        "type": "string"
+                    },
+                    "category": {
+                        "description": "The category name of the article",
+                        "type": "string"
+                    },
+                    "published_at": {
+                        "description": "The publication date of the article",
+                        "type": "string",
+                        "format": "date-time"
+                    },
                     "author_id": {
                         "description": "The ID of the author associated with the article",
-                        "type": "integer"
+                        "type": "integer",
+                        "nullable": true
                     },
                     "category_id": {
                         "description": "The ID of the category associated with the article",
-                        "type": "integer"
+                        "type": "integer",
+                        "nullable": true
                     },
                     "source_id": {
                         "description": "The ID of the source associated with the article",
-                        "type": "integer"
+                        "type": "integer",
+                        "nullable": true
                     },
                     "created_at": {
-                        "description": "The creation date of the article",
+                        "description": "The creation date of the article in the local database",
                         "type": "string",
                         "format": "date-time"
                     },
                     "updated_at": {
-                        "description": "The last update date of the article",
+                        "description": "The last update date of the article in the local database",
                         "type": "string",
                         "format": "date-time"
                     }
@@ -832,10 +872,6 @@
         {
             "name": "Authentication",
             "description": "Authentication"
-        },
-        {
-            "name": "News",
-            "description": "News"
         },
         {
             "name": "Preferences",

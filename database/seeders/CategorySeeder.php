@@ -14,7 +14,7 @@ class CategorySeeder extends Seeder
      */
     public function run(): void
     {
-        $categories = ['Technology', 'Sports', 'Health', 'Business', 'Entertainment'];
+        $categories = ['Technology', 'Sports', 'Health', 'Business', 'Entertainment', 'Politics'];
 
         foreach ($categories as $category) {
             Category::create([

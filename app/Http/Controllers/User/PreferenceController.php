@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Services\PreferenceService;
 use App\Http\Requests\StorePreferenceRequest;
+use App\Http\Resources\ArticleResource;
 use Illuminate\Http\Request;
 
 class PreferenceController extends Controller
@@ -18,7 +19,7 @@ class PreferenceController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/preferences",
+     *     path="/save-preferences",
      *     tags={"Preferences"},
      *     summary="Store or update user preferences",
      *     security={{"sanctum": {}}},
@@ -58,18 +59,15 @@ class PreferenceController extends Controller
      *     security={{"sanctum": {}}}
      * )
      */
-
     public function store(StorePreferenceRequest $request)
     {
         $preferences = $this->preferenceService->storePreferences($request->user(), $request->validated());
         return response()->json($preferences, 201);
     }
 
-
-
     /**
      * @OA\Get(
-     *     path="/preferences",
+     *     path="/get-preferences",
      *     tags={"Preferences"},
      *     summary="Get user preferences",
      *     security={{"sanctum": {}}},
@@ -98,13 +96,18 @@ class PreferenceController extends Controller
      *             @OA\Property(property="message", type="string", example="Unauthenticated")
      *         )
      *     ),
-     *     security={{"sanctum": {}}}
+     *     @OA\Response(
+     *         response=404,
+     *         description="Preferences not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="No preferences found")
+     *         )
+     *     )
      * )
      */
     public function show(Request $request)
     {
         $preferences = $this->preferenceService->getPreferences($request->user());
-
         if (empty($preferences)) {
             return response()->json(['message' => 'No preferences found'], 404);
         }
@@ -112,4 +115,42 @@ class PreferenceController extends Controller
         return response()->json($preferences);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/preferences/news",
+     *     tags={"Preferences"},
+     *     summary="Get personalized news based on user preferences",
+     *     description="Fetch a personalized news feed based on the user's preferred categories, sources, and authors.",
+     *     security={{"sanctum": {}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Personalized news feed retrieved successfully",
+     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Article"))
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Bad request"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="No preferences found for user",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="No personalized news found")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error"
+     *     )
+     * )
+     */
+    public function getPersonalizedNews()
+    {
+        $newsFeed = $this->preferenceService->fetchPersonalizedNews();
+
+        return response()->json([
+            'message' => 'Personalized news feed retrieved successfully',
+            'data' => ArticleResource::collection($newsFeed)
+        ]);
+    }
 }

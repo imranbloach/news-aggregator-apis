@@ -1,11 +1,12 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\Article;
 use App\Services\News\NewsApiService;
 use App\Services\News\GuardianService;
 use App\Services\News\NytService;
-use Illuminate\Http\Request;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
 class NewsController extends Controller
@@ -14,50 +15,20 @@ class NewsController extends Controller
     protected $guardianService;
     protected $nytService;
 
-    public function __construct(NewsApiService $newsApiService, GuardianService $guardianService, NytService $nytService)
-    {
+    public function __construct(
+        NewsApiService $newsApiService,
+        GuardianService $guardianService,
+        NytService $nytService
+    ) {
         $this->newsApiService = $newsApiService;
         $this->guardianService = $guardianService;
         $this->nytService = $nytService;
     }
 
-    /**
-     * @OA\Get(
-     *     path="/news/{query}",
-     *     tags={"News"},
-     *     summary="Fetch and save combined news articles from multiple sources",
-     *     description="Fetches and saves articles related to a specific query from NewsAPI.org, The Guardian, and The New York Times.",
-     *     @OA\Parameter(
-     *         name="query",
-     *         in="path",
-     *         description="Search query for news articles",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Articles fetched and saved successfully",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="Articles saved successfully"),
-     *             @OA\Property(property="saved_count", type="integer", example=15)
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=400,
-     *         description="Bad request",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="Bad request due to invalid input")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=401,
-     *         description="Unauthenticated",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="Unauthenticated")
-     *         )
-     *     ),
-     *     security={{"sanctum": {}}}
-     * )
+
+    /*  we can also use below method to make an api request to fetch articles 
+        manually using any query parameter. but now its being used to fetch 
+        articles data by runing command automatically according to requirement
      */
     public function fetchAndSaveArticles($query)
     {
@@ -68,60 +39,61 @@ class NewsController extends Controller
         $savedCount = 0;
 
         // Process NewsAPI Articles
-        foreach ($newsApiArticles['articles'] ?? [] as $newsItem) {
-            $saved = Article::updateOrCreate(
-                ['url' => $newsItem['url']],
-                [
-                    'title' => $newsItem['title'] ?? '',
-                    'content' => $newsItem['description'] ?? '',
-                    'published_at' => $newsItem['publishedAt'] ?? '',
-                    'url' => $newsItem['url'] ?? '',
-                    'source_name' => 'NewsAPI',
-                    'section_name' => $query,
-                ]
-            );
-            $savedCount += $saved->wasRecentlyCreated ? 1 : 0;
+        if ($newsApiArticles && isset($newsApiArticles['articles'])) {
+            foreach ($newsApiArticles['articles'] as $newsItem) {
+                $saved = Article::updateOrCreate(
+                    ['url' => $newsItem['url']],
+                    [
+                        'title' => $newsItem['title'] ?? '',
+                        'content' => $newsItem['description'] ?? '',
+                        'published_at' => isset($newsItem['publishedAt']) ? Carbon::parse($newsItem['publishedAt'])->format('Y-m-d H:i:s') : null,
+                        'source' => 'NewsAPI',
+                        'category' => $query,
+                    ]
+                );
+                $savedCount += $saved->wasRecentlyCreated ? 1 : 0;
+            }
         }
 
         // Process The Guardian Articles
-        foreach ($guardianArticles['response']['results'] ?? [] as $newsItem) {
-            $saved = Article::updateOrCreate(
-                ['url' => $newsItem['webUrl']],
-                [
-                    'title' => $newsItem['webTitle'] ?? '',
-                    'content' => null,
-                    'published_at' => $newsItem['webPublicationDate'] ?? '',
-                    'url' => $newsItem['webUrl'] ?? '',
-                    'source_name' => 'The Guardian',
-                    'section_name' => $newsItem['sectionName'] ?? $query,
-                ]
-            );
-            $savedCount += $saved->wasRecentlyCreated ? 1 : 0;
+        if ($guardianArticles && isset($guardianArticles['response']['results'])) {
+            foreach ($guardianArticles['response']['results'] as $newsItem) {
+                $saved = Article::updateOrCreate(
+                    ['url' => $newsItem['webUrl']],
+                    [
+                        'title' => $newsItem['webTitle'] ?? '',
+                        'content' => $newsItem['fields']['bodyText'] ?? '',
+                        'published_at' => isset($newsItem['webPublicationDate']) ? Carbon::parse($newsItem['webPublicationDate'])->format('Y-m-d H:i:s') : null,
+                        'source' => 'The Guardian',
+                        'category' => $newsItem['sectionName'] ?? $query,
+                    ]
+                );
+                $savedCount += $saved->wasRecentlyCreated ? 1 : 0;
+            }
         }
 
         // Process The New York Times Articles
-        foreach ($nytArticles['response']['docs'] ?? [] as $newsItem) {
-            $saved = Article::updateOrCreate(
-                ['url' => $newsItem['web_url']],
-                [
-                    'title' => $newsItem['headline']['main'] ?? '',
-                    'content' => $newsItem['abstract'] ?? '',
-                    'published_at' => $newsItem['pub_date'] ?? '',
-                    'url' => $newsItem['web_url'] ?? '',
-                    'source_name' => 'New York Times',
-                    'section_name' => $newsItem['section_name'] ?? $query,
-                ]
-            );
-            $savedCount += $saved->wasRecentlyCreated ? 1 : 0;
+        if ($nytArticles && isset($nytArticles['response']['docs'])) {
+            foreach ($nytArticles['response']['docs'] as $newsItem) {
+                $saved = Article::updateOrCreate(
+                    ['url' => $newsItem['web_url']],
+                    [
+                        'title' => $newsItem['headline']['main'] ?? '',
+                        'content' => $newsItem['abstract'] ?? '',
+                        'published_at' => isset($newsItem['pub_date']) ? Carbon::parse($newsItem['pub_date'])->format('Y-m-d H:i:s') : null,
+                        'source' => 'New York Times',
+                        'category' => $newsItem['section_name'] ?? $query,
+                    ]
+                );
+                $savedCount += $saved->wasRecentlyCreated ? 1 : 0;
+            }
         }
+
+        Log::info('Articles saved successfully', ['saved_count' => $savedCount]);
 
         return response()->json([
             'message' => 'Articles saved successfully',
-            'saved_count' => $savedCount
+            'saved_count' => $savedCount,
         ]);
-        Log::info(json_encode([
-            'message' => 'Articles saved successfully',
-            'saved_count' => $savedCount
-        ]));
     }
 }

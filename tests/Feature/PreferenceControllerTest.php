@@ -6,6 +6,9 @@ use App\Models\User;
 use App\Models\Category;
 use App\Models\Source;
 use App\Models\Author;
+use Database\Seeders\AuthorSeeder;
+use Database\Seeders\CategorySeeder;
+use Database\Seeders\SourceSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -18,29 +21,27 @@ class PreferenceControllerTest extends TestCase
     {
         parent::setUp();
         $this->user = User::factory()->create();
+        $this->seed(CategorySeeder::class);
+        $this->seed(SourceSeeder::class);
+        $this->seed(AuthorSeeder::class);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_stores_preferences_successfully()
     {
-        // Log in as the test user
         $this->actingAs($this->user);
 
-        // Create related data to pass validation
-        $categories = Category::factory()->count(2)->create();
-        $sources = Source::factory()->count(2)->create();
-        $authors = Author::factory()->count(2)->create();
-
-        // Set up test data with existing IDs
+        // Fetch data from seeded categories, sources, and authors
         $data = [
-            'categories' => $categories->pluck('id')->toArray(),
-            'sources' => $sources->pluck('id')->toArray(),
-            'authors' => $authors->pluck('id')->toArray(),
+            'categories' => Category::pluck('id')->take(2)->toArray(),
+            'sources' => Source::pluck('id')->take(2)->toArray(),
+            'authors' => Author::pluck('id')->take(2)->toArray(),
         ];
 
-        $response = $this->postJson('/api/preferences', $data);
+        // Use the correct route path for storing preferences
+        $response = $this->postJson('/api/save-preferences', $data);
 
-        $response->assertStatus(201) // Check if status is 201 Created
+        $response->assertStatus(201)
                  ->assertJsonFragment([
                      'user_id' => $this->user->id,
                      'categories' => $data['categories'],
@@ -53,7 +54,7 @@ class PreferenceControllerTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_returns_validation_errors_for_invalid_preferences()
     {
         $this->actingAs($this->user);
@@ -64,13 +65,14 @@ class PreferenceControllerTest extends TestCase
             'sources' => [1, 'string'], // Mixed types
         ];
 
-        $response = $this->postJson('/api/preferences', $data);
+        // Use the correct route path for storing preferences
+        $response = $this->postJson('/api/save-preferences', $data);
 
         $response->assertStatus(422)
                  ->assertJsonValidationErrors(['categories.0', 'sources.1']);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_retrieves_user_preferences()
     {
         $this->actingAs($this->user);
@@ -82,7 +84,8 @@ class PreferenceControllerTest extends TestCase
             'authors' => [2, 4],
         ]);
 
-        $response = $this->getJson('/api/preferences');
+        // Use the correct route path for retrieving preferences
+        $response = $this->getJson('/api/get-preferences');
 
         $response->assertStatus(200)
                  ->assertJsonFragment([

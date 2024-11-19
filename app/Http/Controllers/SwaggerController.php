@@ -43,31 +43,55 @@ namespace App\Http\Controllers;
  *         description="The content of the article"
  *     ),
  *     @OA\Property(
+ *         property="url",
+ *         type="string",
+ *         description="The URL of the article"
+ *     ),
+ *     @OA\Property(
+ *         property="source",
+ *         type="string",
+ *         description="The source name of the article"
+ *     ),
+ *     @OA\Property(
+ *         property="category",
+ *         type="string",
+ *         description="The category name of the article"
+ *     ),
+ *     @OA\Property(
+ *         property="published_at",
+ *         type="string",
+ *         format="date-time",
+ *         description="The publication date of the article"
+ *     ),
+ *     @OA\Property(
  *         property="author_id",
  *         type="integer",
+ *         nullable=true,
  *         description="The ID of the author associated with the article"
  *     ),
  *     @OA\Property(
  *         property="category_id",
  *         type="integer",
+ *         nullable=true,
  *         description="The ID of the category associated with the article"
  *     ),
  *     @OA\Property(
  *         property="source_id",
  *         type="integer",
+ *         nullable=true,
  *         description="The ID of the source associated with the article"
  *     ),
  *     @OA\Property(
  *         property="created_at",
  *         type="string",
  *         format="date-time",
- *         description="The creation date of the article"
+ *         description="The creation date of the article in the local database"
  *     ),
  *     @OA\Property(
  *         property="updated_at",
  *         type="string",
  *         format="date-time",
- *         description="The last update date of the article"
+ *         description="The last update date of the article in the local database"
  *     ),
  * )
  */

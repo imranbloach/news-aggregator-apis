@@ -22,27 +22,34 @@ class ArticleController extends Controller
      *     tags={"Articles"},
      *     summary="Get list of articles",
      *     security={{"sanctum": {}}},
-     *     description="Returns a list of articles with optional filters",
+     *     description="Returns a list of articles with optional filters based on category, source, and published date.",
      *     @OA\Parameter(
      *         name="category",
      *         in="query",
      *         required=false,
-     *         description="Category ID to filter articles",
-     *         @OA\Schema(type="integer")
+     *         description="Category to filter articles",
+     *         @OA\Schema(type="string")
      *     ),
      *     @OA\Parameter(
      *         name="keyword",
      *         in="query",
      *         required=false,
-     *         description="Keyword to search in article titles",
+     *         description="Keyword to search in article titles or content",
      *         @OA\Schema(type="string")
      *     ),
      *     @OA\Parameter(
      *         name="source",
      *         in="query",
      *         required=false,
-     *         description="Source ID to filter articles",
-     *         @OA\Schema(type="integer")
+     *         description="Source to filter articles",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="published_at",
+     *         in="query",
+     *         required=false,
+     *         description="Date to filter articles by publication date",
+     *         @OA\Schema(type="string", format="date-time", example="2024-10-19T20:00:17Z")
      *     ),
      *     @OA\Response(
      *         response=200,
@@ -62,11 +69,13 @@ class ArticleController extends Controller
      *     )
      * )
      */
-
      public function index(Request $request)
      {
         $articles = $this->articleService->getAllArticles($request->all());
-        return ArticleResource::collection($articles);
+        return response()->json([
+            'message' => 'Articles retrieved successfully',
+            'data' => ArticleResource::collection($articles)
+        ]);
      }
 
     /**
