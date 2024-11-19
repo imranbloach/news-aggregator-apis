@@ -25,10 +25,10 @@ class PreferenceService
         return $this->preferenceRepo->getUserPreferences($user);
     }
 
-    public function fetchPersonalizedNews()
+    public function fetchPersonalizedNews($user)
     {
         // Retrieve user preferences from the repository
-        $preferences = $this->preferenceRepo->getUserPreferences(Auth::id());
+        $preferences = $this->preferenceRepo->getUserPreferences($user);
 
         if (!$preferences) {
             return response()->json(['message' => 'No preferences found for user'], 404);

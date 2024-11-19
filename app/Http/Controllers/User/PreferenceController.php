@@ -144,9 +144,9 @@ class PreferenceController extends Controller
      *     )
      * )
      */
-    public function getPersonalizedNews()
+    public function getPersonalizedNews(Request $request)
     {
-        $newsFeed = $this->preferenceService->fetchPersonalizedNews();
+        $newsFeed = $this->preferenceService->fetchPersonalizedNews($request->user());
 
         return response()->json([
             'message' => 'Personalized news feed retrieved successfully',
