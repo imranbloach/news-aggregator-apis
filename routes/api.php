@@ -7,6 +7,9 @@ use App\Http\Controllers\Article\ArticleController;
 use App\Http\Controllers\User\PreferenceController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\Auth\PasswordResetController;
+use App\Http\Controllers\AuthorController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\SourceController;
 
 // Public routes with rate limiting it means 5 request per minut for same ip address
 Route::middleware('throttle:5,1')->group(function () {
@@ -31,6 +34,14 @@ Route::middleware(['auth:sanctum', 'throttle:20,1'])->group(function () {
 
     // Get news articles
     Route::get('news/{query}', [NewsController::class, 'fetchAndSaveArticles'])->name('news.index');
+    
+    Route::apiResource('categories', CategoryController::class);
+    Route::apiResource('sources', SourceController::class);
+    Route::apiResource('authors', AuthorController::class);
+
 });
+
+
+
 
 

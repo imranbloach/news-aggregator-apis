@@ -94,7 +94,41 @@ namespace App\Http\Controllers;
  *         description="The last update date of the article in the local database"
  *     ),
  * )
+ * @OA\Schema(
+ *     schema="Category",
+ *     type="object",
+ *     @OA\Property(property="id", type="integer"),
+ *     @OA\Property(property="name", type="string"),
+ *     @OA\Property(property="slug", type="string"),
+ *     @OA\Property(property="description", type="string"),
+ *     @OA\Property(property="created_at", type="string", format="date-time"),
+ *     @OA\Property(property="updated_at", type="string", format="date-time")
+ * )
+ * @OA\Schema(
+ *     schema="Author",
+ *     type="object",
+ *     @OA\Property(property="id", type="integer"),
+ *     @OA\Property(property="name", type="string"),
+ *     @OA\Property(property="bio", type="string"),
+ *     @OA\Property(property="profile_url", type="string"),
+ *     @OA\Property(property="created_at", type="string", format="date-time"),
+ *     @OA\Property(property="updated_at", type="string", format="date-time")
+ * )
+ * @OA\Schema(
+ *     schema="Source",
+ *     type="object",
+ *     @OA\Property(property="id", type="integer"),
+ *     @OA\Property(property="name", type="string"),
+ *     @OA\Property(property="url", type="string"),
+ *     @OA\Property(property="description", type="string"),
+ *     @OA\Property(property="created_at", type="string", format="date-time"),
+ *     @OA\Property(property="updated_at", type="string", format="date-time")
+ * )
  */
+ 
+
+
+
 class SwaggerController extends Controller
 {
     // This file is for Swagger documentation only.

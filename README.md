@@ -26,6 +26,7 @@ cd news-aggregator-api
 Create a .env file in the root directory of the project or copy from the provided:
 
 cp .env.example .env
+php artisan key:generate
 Then, update the .env file with the following essential variables:
 
 ///////////////.env file complete/////////////////
@@ -110,6 +111,14 @@ NYT_API_KEY=JgQNFEMnrAqGaTKCDdv01m9qnNgxFAQh
 NYT_API_SECRET=V76uWO1cEi5lig0I
 
 
+/////////////////////////////////////////////////////////
+
+Install Composer: composer install
+Database migration: php artisan migrate
+Database seeding: php artisan db:seed
+Initial news fetch: php artisan fetch:news
+Genarete Swagger docs: php artisan l5-swagger:generate
+also ensure that redis server is installed and runing in your machine
 ////////////////////////////////////////////
 
 
@@ -125,6 +134,10 @@ Start the containers in detached mode.
 Run the migrations to set up the database schema:
 
 docker-compose exec app php artisan migrate
+Database Setup
+
+
+
 5. Access the Application
 The application will be accessible at http://localhost:8000.
 The API documentation (Swagger) can be accessed at http://localhost:8000/api/documentation
@@ -132,7 +145,7 @@ The API documentation (Swagger) can be accessed at http://localhost:8000/api/doc
 6. Running Tests
 Run the tests to verify the functionality:
 ----------------------------------------
-docker-compose exec app php artisan test
+php artisan test
 -----------------------------------------
 
 /////////////////////API Endpoints////////////////////
@@ -162,6 +175,18 @@ If you encounter any issues, try rebuilding the containers:
 ----------------------------------
 docker-compose up --build -d
 ----------------------------------
+
+////////////////////////. **Testing Redis**//////////////////////////////////
+
+
+Once everything is running, you can verify Redis caching by running an Artisan command:
+
+docker-compose exec app php artisan cache:put test "Redis is working"
+
+docker-compose exec app php artisan cache:get test
+//////////////////////////////////////////////////////////////////////////
+
+
 
 I hope these instructions are enough to run the assignment code
 
